@@ -49,7 +49,6 @@ class SAMNET:
            with 13 convolutional layers. All dense layers are discarded and the
            last 3 layers are dilated at a rate of 2 to account for the omitted
            downsampling.
-
         Args:
             images (tensor, float32): A 4D tensor that holds the RGB image
                                       batches used as input to the network.
@@ -67,6 +66,17 @@ class SAMNET:
         self._output = features
 
     def _attenion_convlstm(self, features):
+        """This is a attention convLSTM model, The input of the LSTM layer is
+           computed, at each timestep (i.e. at each iteration), through an
+           attentive mechanism which selectively focuses on different regions
+           of the image. The Convolutional LSTM that focuses on the most salient
+           regions of the input image to iteratively refine the predicted saliency
+           map.
+        Args:
+            features (tensor, float32): A 4D tensor that holds the features extracted
+                                        by encoder network.
+        """
+
         x_tile = tf.tile(tf.layers.Flatten()(features), [1, self.nb_timestep])
         x_tile = tf.reshape(x_tile, [-1, self.nb_timestep, 512, self.shape_r_gt, self.shape_c_gt])
         inital_state = self.attionconvlstm.get_initial_states(x_tile)
@@ -74,6 +84,15 @@ class SAMNET:
         self._output = state.h
 
     def _prior_learing(self, features):
+        """
+        Thin model can learn a set of prior maps generated with Gaussian functions
+        to tackle the center bias present in human eye fixations. The entire
+        learning prior module is replicated two times.
+        Args:
+            features (tensor, float32): A 4D tensor that holds the features refined
+                                        by Convolutional LSTM network.
+        """
+
         priors1 = self.priorlearing1.forword(features)
         concateneted = tf.concat([features, priors1], axis=1)
         learned_priors1 = tf.layers.conv2d(concateneted, 512, 5, padding="same", activation=tf.nn.relu,
@@ -178,7 +197,8 @@ class SAMNET:
            algorithm for training the model.
 
         Args:
-            ground_truth (tensor, float32): A 4D tensor with the ground truth.
+            ground_truth_map (tensor, float32): A 4D tensor with the ground truth map.
+            ground_truth_fixation (tensor, float32):  A 4D tensor with the ground truth fixation.
             predicted_maps (tensor, float32): A 4D tensor with the predictions.
             learning_rate (scalar, float): Defines the learning rate.
 
@@ -203,6 +223,7 @@ class SAMNET:
         Args:
             saver (object): An object for saving the model.
             sess (object): The current TF training session.
+            dataset ([type]): The dataset used for training.
             path (str): The path used for saving the model.
             device (str): Represents either "cpu" or "gpu".
         """

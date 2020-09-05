@@ -35,6 +35,19 @@ def kld(y_true, y_pred, eps=1e-7):
 
 # Correlation Coefficient Loss
 def correlation_coefficient(y_true, y_pred):
+    """The CC, is the Pearson’s correlation coefficient and treats the saliency
+       and ground truth density maps, as random variables measuring the linear
+       relationship between them.Values are first divided by their sum for each
+       image to yield a distribution that adds to 1.
+    Args:
+        y_true (tensor, float32): A 4d tensor that holds the ground truth
+                                  saliency maps with values between 0 and 255.
+        y_pred (tensor, float32): A 4d tensor that holds the predicted saliency
+                                  maps with values between 0 and 1.
+
+    Returns:
+        tensor, float32: A 0D tensor that holds the averaged error.
+       """
     sum_y_true = tf.reduce_sum(y_true, axis=[1, 2, 3], keep_dims=True)
     sum_y_pred = tf.reduce_sum(y_pred, axis=[1, 2, 3], keep_dims=True)
 
@@ -57,6 +70,22 @@ def correlation_coefficient(y_true, y_pred):
 
 # Normalized Scanpath Saliency Loss
 def nss(y_true, y_pred):
+    """The NSS metric was defined specifically for the evaluation of saliency
+       models. The idea is to quantify the saliency map values at the eye
+       fixation locations and to normalize it with the saliency map variance.
+       Values are first divided by their sum for each image to yield a
+       distribution that adds to 1.
+    Args:
+        y_true:(tensor, float32): A 4d tensor that holds the ground truth
+                                  saliency fixations with values between 0 and 255.
+        y_pred:(tensor, float32): A 4d tensor that holds the predicted saliency
+                                  maps with values between 0 and 1.
+
+    Returns:
+        tensor, float32: A 0D tensor that holds the averaged error.
+
+    """
+
     y_mean, y_var = tf.nn.moments(y_pred, [1, 2, 3], keep_dims=True)
     y_std = tf.sqrt(y_var)
 

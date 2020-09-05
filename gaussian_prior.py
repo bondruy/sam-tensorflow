@@ -70,4 +70,7 @@ if __name__ == '__main__':
         input = np.ones([10, 256, 30, 40], dtype=np.float32)
         sess.run(tf.global_variables_initializer())
         x = sess.run(w, feed_dict={x: input})
+        x1 = x[0][1]
+        x2 = x[0][2]
+        x3 = x[0][3]
         print(x)

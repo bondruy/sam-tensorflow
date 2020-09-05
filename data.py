@@ -2,7 +2,6 @@ import os
 import sys
 
 import numpy as np
-import scipy.io
 import tensorflow as tf
 
 import config
@@ -607,13 +606,13 @@ def _parse_function(files, target_size, out_size):
                         lambda: tf.image.decode_jpeg(image_str,
                                                      channels=channels),
                         lambda: tf.image.decode_png(image_str,
-                                                    channels=channels))
 
+                                                    channels=channels))
+        original_size = tf.shape(image)[:2]
         image = _resize_image(image, size)
         image = _pad_image(image, size)
         image_list.append(image)
 
-    original_size = tf.shape(image)[:2]
     image_list.append(original_size)
     image_list.append(files)
 

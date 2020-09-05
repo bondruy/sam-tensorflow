@@ -82,16 +82,12 @@ def train_model(dataset, paths, device):
     input_plhd = tf.placeholder_with_default(input_images,
                                              (None, None, None, 3),
                                              name="input")
-    # msi_net = model.MSINET()
+
     sam_net = sam_model.SAMNET()
     predicted_maps = sam_net.forward(input_plhd)
 
     optimizer, loss = sam_net.train(ground_truths_maps, ground_truths_fixations, predicted_maps,
                                     config.PARAMS["learning_rate"])
-
-    # w1 = sam_net.priorlearing1.w
-    # with tf.variable_scope("prior", reuse=True):
-    #     w = tf.get_variable('w1')
 
     n_train_data = getattr(data, dataset.upper()).n_train
     n_valid_data = getattr(data, dataset.upper()).n_valid

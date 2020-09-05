@@ -3,7 +3,8 @@ import numpy as np
 
 
 class AttentiveConvLSTM(tf.nn.rnn_cell.RNNCell):
-  """A LSTM cell with convolutions and attention.
+  """
+     A LSTM cell with convolutions and attention.
   """
 
   def __init__(self, shape, kernel, nb_filters_in, nb_filters_out, nb_filters_att,
